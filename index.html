@@ -210,56 +210,7 @@
     color: #2e2618;
     margin-bottom: 1.25rem;
   }
-  .comment {
-    background: rgba(255, 252, 242, 0.55);
-    border: 1px solid rgba(163, 106, 62, 0.22);
-    border-radius: 6px;
-    padding: 0.8rem 1rem;
-    margin-bottom: 0.9rem;
-    font-size: 0.95rem;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-  }
-  .comment .when {
-    display: block;
-    font-size: 0.7rem;
-    color: rgba(74, 61, 42, 0.55);
-    margin-top: 0.35rem;
-  }
-  .no-comments {
-    font-size: 0.9rem;
-    font-style: italic;
-    color: rgba(74, 61, 42, 0.6);
-    margin-bottom: 1rem;
-  }
-  .comment-form textarea {
-    width: 100%;
-    min-height: 5.5rem;
-    font-family: inherit;
-    font-size: 0.95rem;
-    color: #3a3226;
-    background: rgba(255, 252, 242, 0.7);
-    border: 1px solid rgba(163, 106, 62, 0.35);
-    border-radius: 6px;
-    padding: 0.7rem 0.9rem;
-    resize: vertical;
-  }
-  .comment-form textarea:focus {
-    outline: 2px solid #d9578a;
-    outline-offset: 1px;
-  }
-  .comment-form button {
-    margin-top: 0.6rem;
-    font-family: inherit;
-    font-size: 0.9rem;
-    background: #d9578a;
-    color: #fff8ec;
-    border: none;
-    border-radius: 999px;
-    padding: 0.5rem 1.2rem;
-    cursor: pointer;
-  }
-  .comment-form button:hover { background: #c74a7b; }
+  .comments .giscus { margin-top: 0.5rem; }
 
   /* ---------- highlights ---------- */
   mark.hl {
@@ -370,11 +321,21 @@
 
   <section class="comments" id="comments">
     <h2>comments</h2>
-    <div id="commentList"></div>
-    <form class="comment-form" id="commentForm">
-      <textarea id="commentInput" placeholder="leave a comment..." required></textarea>
-      <button type="submit">post comment</button>
-    </form>
+    <script src="https://giscus.app/client.js"
+            data-repo="austin-from-ais/annikareflections"
+            data-repo-id="R_kgDOThpWIw"
+            data-category="Announcements"
+            data-category-id="DIC_kwDOThpWI84DB1fi"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="top"
+            data-theme="light"
+            data-lang="en"
+            crossorigin="anonymous"
+            async>
+    </script>
   </section>
 </div>
 
@@ -402,7 +363,12 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hint = document.getElementById('skipHint');
 
-  if (reduced) { hint.remove(); return; }
+  if (reduced) {
+    hint.remove();
+    window.__typingDone = true;
+    document.dispatchEvent(new Event('typing-done'));
+    return;
+  }
 
   // collect every paragraph's content, empty them, then type it all back in once
   var paras = Array.prototype.slice.call(document.querySelectorAll('#essay p'));
@@ -435,6 +401,8 @@
     hint.classList.add('gone');
     document.removeEventListener('click', finish);
     document.removeEventListener('keydown', finish);
+    window.__typingDone = true;
+    document.dispatchEvent(new Event('typing-done'));
   }
 
   document.addEventListener('click', finish);
@@ -512,53 +480,6 @@
   });
   sidebar.addEventListener('click', function (e) { e.stopPropagation(); });
 
-  // ---------- comments (kept in this browser's storage) ----------
-  var listEl = document.getElementById('commentList');
-  var form = document.getElementById('commentForm');
-  var input = document.getElementById('commentInput');
-  var KEY = 'annika-reflections-comments';
-
-  function loadComments() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
-  }
-  function saveComments(arr) {
-    try { localStorage.setItem(KEY, JSON.stringify(arr)); } catch (e) {}
-  }
-  function renderComments() {
-    listEl.textContent = '';
-    var arr = loadComments();
-    if (!arr.length) {
-      var empty = document.createElement('p');
-      empty.className = 'no-comments';
-      empty.textContent = 'no comments yet';
-      listEl.appendChild(empty);
-      return;
-    }
-    arr.forEach(function (c) {
-      var box = document.createElement('div');
-      box.className = 'comment';
-      var text = document.createElement('span');
-      text.textContent = c.t;
-      var when = document.createElement('span');
-      when.className = 'when';
-      when.textContent = c.d;
-      box.appendChild(text);
-      box.appendChild(when);
-      listEl.appendChild(box);
-    });
-  }
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var v = input.value.trim();
-    if (!v) return;
-    var arr = loadComments();
-    arr.push({ t: v, d: new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) });
-    saveComments(arr);
-    input.value = '';
-    renderComments();
-  });
-  renderComments();
-
   // ---------- pink highlighter ----------
   var article = document.getElementById('essay');
   var bubble = document.createElement('button');
@@ -595,6 +516,7 @@
     e.stopPropagation();
     if (!pendingRange) return;
     highlightRange(pendingRange);
+    saveHighlights();
     var sel = window.getSelection();
     if (sel.removeAllRanges) sel.removeAllRanges();
     hideBubble();
@@ -632,8 +554,71 @@
       while (t.firstChild) parent.insertBefore(t.firstChild, t);
       parent.removeChild(t);
       parent.normalize();
+      saveHighlights();
     }
   });
+
+  // ---------- highlight persistence (this browser's storage) ----------
+  var HL_KEY = 'annika-reflections-highlights';
+
+  function articleParas() {
+    return Array.prototype.slice.call(article.querySelectorAll('p'));
+  }
+
+  // store highlights as character offsets into each paragraph's plain text
+  function saveHighlights() {
+    var out = [];
+    articleParas().forEach(function (p, idx) {
+      var walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, null, false);
+      var off = 0, n, cur = null;
+      while ((n = walker.nextNode())) {
+        var len = n.nodeValue.length;
+        var marked = n.parentElement && n.parentElement.closest('mark.hl');
+        if (marked) {
+          if (cur && cur.e === off) {
+            cur.e = off + len;
+          } else {
+            cur = { p: idx, s: off, e: off + len };
+            out.push(cur);
+          }
+        }
+        off += len;
+      }
+    });
+    try { localStorage.setItem(HL_KEY, JSON.stringify(out)); } catch (e) {}
+  }
+
+  function restoreHighlights() {
+    var saved;
+    try { saved = JSON.parse(localStorage.getItem(HL_KEY)) || []; } catch (e) { saved = []; }
+    if (!saved.length) return;
+    var paras = articleParas();
+    saved.forEach(function (h) {
+      var p = paras[h.p];
+      if (!p) return;
+      var range = document.createRange();
+      var walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, null, false);
+      var off = 0, n, startSet = false, endSet = false;
+      while ((n = walker.nextNode())) {
+        var len = n.nodeValue.length;
+        if (!startSet && h.s < off + len) {
+          range.setStart(n, Math.max(0, h.s - off));
+          startSet = true;
+        }
+        if (startSet && h.e <= off + len) {
+          range.setEnd(n, Math.min(len, h.e - off));
+          endSet = true;
+          break;
+        }
+        off += len;
+      }
+      if (startSet && endSet) highlightRange(range);
+    });
+  }
+
+  // restore once the typing animation has produced the full text
+  if (window.__typingDone) restoreHighlights();
+  else document.addEventListener('typing-done', restoreHighlights);
 
   // ---------- flowers ----------
   var flowersBtn = document.getElementById('flowersBtn');
