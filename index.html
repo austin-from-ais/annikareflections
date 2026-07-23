@@ -42,9 +42,16 @@
     font-size: clamp(1.4rem, 6.6vw, 3.3rem);
     letter-spacing: 0.02em;
     color: #d9578a;
-    margin-bottom: clamp(2.25rem, 6vw, 3.5rem);
+    margin-bottom: 0.5rem;
     line-height: 1.2;
     white-space: nowrap;
+  }
+
+  .byline {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: rgba(74, 61, 42, 0.75);
+    margin-bottom: clamp(2.25rem, 6vw, 3.5rem);
   }
 
   h1 .l {
@@ -115,6 +122,191 @@
   }
   .skip-hint.gone { opacity: 0; }
 
+  /* ---------- archive sidebar ---------- */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 16rem;
+    background: #efe4c8;
+    border-right: 1px solid rgba(163, 106, 62, 0.25);
+    padding: 2.5rem 1.5rem;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #6b543a;
+    margin-bottom: 1.5rem;
+  }
+  .sidebar ol { list-style: none; }
+  .sidebar li { margin-bottom: 1.1rem; }
+  .sidebar a {
+    display: block;
+    color: #3a3226;
+    text-decoration: none;
+    line-height: 1.4;
+    font-size: 0.95rem;
+    border-left: 2px solid transparent;
+    padding-left: 0.65rem;
+  }
+  .sidebar a:hover { color: #c74a7b; }
+  .sidebar a.current { border-left-color: #d9578a; }
+  .sidebar a .meta {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(74, 61, 42, 0.65);
+    margin-top: 0.15rem;
+  }
+
+  .menu-btn {
+    position: fixed;
+    top: 0.9rem; left: 0.9rem;
+    z-index: 50;
+    background: rgba(246, 236, 214, 0.92);
+    border: 1px solid rgba(163, 106, 62, 0.35);
+    border-radius: 8px;
+    font-size: 1.15rem;
+    line-height: 1;
+    padding: 0.45rem 0.6rem;
+    color: #6b543a;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(58, 50, 38, 0.35);
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+
+  @media (min-width: 1024px) {
+    .sidebar { transform: none; }
+    .menu-btn, .overlay { display: none; }
+    body { padding-left: 16rem; }
+  }
+  @media (max-width: 1023.98px) {
+    .page { padding-top: 4.75rem; }
+  }
+
+  /* ---------- comments ---------- */
+  .comments {
+    margin-top: 4rem;
+    border-top: 1px dashed rgba(163, 106, 62, 0.4);
+    padding-top: 2rem;
+  }
+  .comments h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2e2618;
+    margin-bottom: 1.25rem;
+  }
+  .comment {
+    background: rgba(255, 252, 242, 0.55);
+    border: 1px solid rgba(163, 106, 62, 0.22);
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.9rem;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+  .comment .when {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(74, 61, 42, 0.55);
+    margin-top: 0.35rem;
+  }
+  .no-comments {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: rgba(74, 61, 42, 0.6);
+    margin-bottom: 1rem;
+  }
+  .comment-form textarea {
+    width: 100%;
+    min-height: 5.5rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #3a3226;
+    background: rgba(255, 252, 242, 0.7);
+    border: 1px solid rgba(163, 106, 62, 0.35);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem;
+    resize: vertical;
+  }
+  .comment-form textarea:focus {
+    outline: 2px solid #d9578a;
+    outline-offset: 1px;
+  }
+  .comment-form button {
+    margin-top: 0.6rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: #d9578a;
+    color: #fff8ec;
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+  }
+  .comment-form button:hover { background: #c74a7b; }
+
+  /* ---------- highlights ---------- */
+  mark.hl {
+    background: rgba(235, 130, 175, 0.4);
+    color: inherit;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .hl-bubble {
+    position: absolute;
+    z-index: 60;
+    display: none;
+    transform: translateX(-50%);
+    font-family: inherit;
+    font-size: 0.8rem;
+    background: #d9578a;
+    color: #fff8ec;
+    border: none;
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(58, 50, 38, 0.25);
+  }
+
+  /* ---------- flowers ---------- */
+  .flowers-btn {
+    position: fixed;
+    bottom: 1rem; right: 1rem;
+    z-index: 45;
+    font-family: inherit;
+    font-style: italic;
+    font-size: 0.9rem;
+    background: rgba(246, 236, 214, 0.92);
+    border: 1px solid #d9578a;
+    color: #c74a7b;
+    border-radius: 999px;
+    padding: 0.45rem 1.1rem;
+    cursor: pointer;
+  }
+  .flowers-btn:hover { background: #fdeef4; }
+  .petal {
+    position: fixed;
+    z-index: 100;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     h1 .l { animation: none; }
     .caret { animation: none; }
@@ -122,8 +314,23 @@
 </style>
 </head>
 <body>
+<button class="menu-btn" id="menuBtn" aria-label="open archive">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+  <h2>archive</h2>
+  <ol>
+    <li>
+      <a href="./" class="current">
+        reflections for annika
+        <span class="meta">austin &middot; 7/23</span>
+      </a>
+    </li>
+  </ol>
+</aside>
+<div class="overlay" id="overlay"></div>
+
 <div class="page">
   <h1 id="title">reflections for annika</h1>
+  <p class="byline">by austin &middot; 7/23</p>
 
   <article id="essay">
     <p class="intro">last night you showed me the movie fight club. the funny truth is that growing up in the countryside I never got to watch much television, and I guess I was disconnected from popular culture for a long time. so despite how incredibly famous this work is, I never saw it. and I really enjoyed it. I thought it was fun to watch a film with someone on the other side of a continent. I thought of you there, the red glow of your computer screen, watching something else at the same time deep into the night. the world turns on small pleasures like this: doesn&rsquo;t it? it turns, the sun sets and rises in different places, and one talks and talks through it all. all the chatter of meeting someone new, the enchantment of uncovering a new facet in them, wondering how you might come across, and wondering wondering about it all. the small comfort of a phone screen, someone on the other end, carrying you through. and thinking about dreams and destinies, and half moons, and palm trees under the street lamp.</p>
@@ -160,8 +367,18 @@
 
     <p class="signoff">thanks annika <span class="emoji">👸🏻</span></p>
   </article>
+
+  <section class="comments" id="comments">
+    <h2>comments</h2>
+    <div id="commentList"></div>
+    <form class="comment-form" id="commentForm">
+      <textarea id="commentInput" placeholder="leave a comment..." required></textarea>
+      <button type="submit">post comment</button>
+    </form>
+  </section>
 </div>
 
+<button class="flowers-btn" id="flowersBtn">flowers?</button>
 <div class="skip-hint" id="skipHint">tap anywhere to skip</div>
 
 <script>
@@ -212,7 +429,8 @@
   function finish() {
     if (done) return;
     done = true;
-    for (var k = 0; k < paras.length; k++) paras[k].innerHTML = htmls[k];
+    // only fill in paragraphs not yet fully typed — earlier ones may hold highlights
+    for (var k = pi; k < paras.length; k++) paras[k].innerHTML = htmls[k];
     if (caret.parentNode) caret.parentNode.removeChild(caret);
     hint.classList.add('gone');
     document.removeEventListener('click', finish);
@@ -274,6 +492,200 @@
   }
 
   setTimeout(step, 600);
+})();
+</script>
+<script>
+(function () {
+  // ---------- archive drawer ----------
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('overlay');
+  var menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', function (e) {
+    e.stopPropagation();
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+  sidebar.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  // ---------- comments (kept in this browser's storage) ----------
+  var listEl = document.getElementById('commentList');
+  var form = document.getElementById('commentForm');
+  var input = document.getElementById('commentInput');
+  var KEY = 'annika-reflections-comments';
+
+  function loadComments() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
+  }
+  function saveComments(arr) {
+    try { localStorage.setItem(KEY, JSON.stringify(arr)); } catch (e) {}
+  }
+  function renderComments() {
+    listEl.textContent = '';
+    var arr = loadComments();
+    if (!arr.length) {
+      var empty = document.createElement('p');
+      empty.className = 'no-comments';
+      empty.textContent = 'no comments yet';
+      listEl.appendChild(empty);
+      return;
+    }
+    arr.forEach(function (c) {
+      var box = document.createElement('div');
+      box.className = 'comment';
+      var text = document.createElement('span');
+      text.textContent = c.t;
+      var when = document.createElement('span');
+      when.className = 'when';
+      when.textContent = c.d;
+      box.appendChild(text);
+      box.appendChild(when);
+      listEl.appendChild(box);
+    });
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = input.value.trim();
+    if (!v) return;
+    var arr = loadComments();
+    arr.push({ t: v, d: new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) });
+    saveComments(arr);
+    input.value = '';
+    renderComments();
+  });
+  renderComments();
+
+  // ---------- pink highlighter ----------
+  var article = document.getElementById('essay');
+  var bubble = document.createElement('button');
+  bubble.className = 'hl-bubble';
+  bubble.textContent = 'highlight';
+  document.body.appendChild(bubble);
+  var pendingRange = null;
+
+  function hideBubble() {
+    bubble.style.display = 'none';
+    pendingRange = null;
+  }
+
+  function maybeShowBubble() {
+    var sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) { hideBubble(); return; }
+    if (!article.contains(sel.anchorNode) || !article.contains(sel.focusNode)) { hideBubble(); return; }
+    var range = sel.getRangeAt(0);
+    var rect = range.getBoundingClientRect();
+    pendingRange = range.cloneRange();
+    bubble.style.display = 'block';
+    bubble.style.left = (rect.left + rect.width / 2 + window.scrollX) + 'px';
+    bubble.style.top = (rect.top + window.scrollY - 44) + 'px';
+  }
+
+  document.addEventListener('mouseup', function () { setTimeout(maybeShowBubble, 10); });
+  document.addEventListener('touchend', function () { setTimeout(maybeShowBubble, 10); });
+  document.addEventListener('mousedown', function (e) {
+    if (e.target !== bubble) hideBubble();
+  });
+
+  bubble.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!pendingRange) return;
+    highlightRange(pendingRange);
+    var sel = window.getSelection();
+    if (sel.removeAllRanges) sel.removeAllRanges();
+    hideBubble();
+  });
+  bubble.addEventListener('click', function (e) { e.stopPropagation(); });
+
+  function highlightRange(range) {
+    var walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [], n;
+    while ((n = walker.nextNode())) {
+      if (range.intersectsNode(n)) nodes.push(n);
+    }
+    nodes.forEach(function (node) {
+      var parent = node.parentNode;
+      if (parent && parent.classList && parent.classList.contains('hl')) return;
+      var start = node === range.startContainer ? range.startOffset : 0;
+      var end = node === range.endContainer ? range.endOffset : node.nodeValue.length;
+      if (start >= end) return;
+      if (!node.nodeValue.slice(start, end).trim()) return;
+      var r = document.createRange();
+      r.setStart(node, start);
+      r.setEnd(node, end);
+      var mark = document.createElement('mark');
+      mark.className = 'hl';
+      mark.title = 'tap to remove highlight';
+      try { r.surroundContents(mark); } catch (err) {}
+    });
+  }
+
+  // tap a highlight to remove it
+  article.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.tagName === 'MARK' && t.classList.contains('hl')) {
+      var parent = t.parentNode;
+      while (t.firstChild) parent.insertBefore(t.firstChild, t);
+      parent.removeChild(t);
+      parent.normalize();
+    }
+  });
+
+  // ---------- flowers ----------
+  var flowersBtn = document.getElementById('flowersBtn');
+  flowersBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    burst();
+  });
+
+  function burst() {
+    var rect = flowersBtn.getBoundingClientRect();
+    var ox = rect.left + rect.width / 2;
+    var oy = rect.top + rect.height / 2;
+    var petals = [];
+    for (var i = 0; i < 44; i++) {
+      var el = document.createElement('span');
+      el.className = 'petal';
+      el.textContent = '🌸';
+      el.style.fontSize = (14 + Math.random() * 24) + 'px';
+      el.style.left = ox + 'px';
+      el.style.top = oy + 'px';
+      document.body.appendChild(el);
+      var ang = Math.random() * Math.PI * 2;
+      var sp = 4 + Math.random() * 13;
+      petals.push({
+        el: el, x: 0, y: 0,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp - 9,
+        rot: 0, vr: -10 + Math.random() * 20,
+        life: 0
+      });
+    }
+    function tick() {
+      var alive = false;
+      petals.forEach(function (p) {
+        p.life++;
+        if (p.life > 140) {
+          if (p.el.parentNode) p.el.parentNode.removeChild(p.el);
+          return;
+        }
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.3;
+        p.vx *= 0.992;
+        p.rot += p.vr;
+        p.el.style.transform = 'translate(' + p.x + 'px,' + p.y + 'px) rotate(' + p.rot + 'deg)';
+        if (p.life > 100) p.el.style.opacity = String(Math.max(0, 1 - (p.life - 100) / 40));
+      });
+      if (alive) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
 })();
 </script>
 </body>
