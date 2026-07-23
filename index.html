@@ -190,10 +190,18 @@
   // collect every paragraph's content, empty them, then type it all back in once
   var paras = Array.prototype.slice.call(document.querySelectorAll('#essay p'));
   var htmls = paras.map(function (p) { return p.innerHTML; });
-  var contents = paras.map(function (p) {
-    var t = p.textContent;
+  // break each paragraph into segments (plain text, <strong>, emoji span)
+  // so styling appears live while its characters are being typed
+  var paraSegs = paras.map(function (p) {
+    var segs = [];
+    var kids = Array.prototype.slice.call(p.childNodes);
+    for (var j = 0; j < kids.length; j++) {
+      var n = kids[j];
+      if (n.nodeType === 3) segs.push({ tag: null, cls: '', text: n.nodeValue });
+      else segs.push({ tag: n.tagName.toLowerCase(), cls: n.className || '', text: n.textContent });
+    }
     p.textContent = '';
-    return t;
+    return segs;
   });
 
   var caret = document.createElement('span');
@@ -227,30 +235,42 @@
     }
   }
 
+  var si = 0, cur = null;
+
   function step() {
     if (done) return;
     if (pi >= paras.length) { finish(); return; }
 
     var p = paras[pi];
-    var full = contents[pi];
+    var segs = paraSegs[pi];
 
-    if (ci === 0) p.appendChild(caret);
+    if (si >= segs.length) {
+      pi++; si = 0; ci = 0; cur = null;
+      setTimeout(step, 260); // breath between paragraphs
+      return;
+    }
+
+    var seg = segs[si];
+    if (!cur) {
+      if (seg.tag) {
+        cur = document.createElement(seg.tag);
+        if (seg.cls) cur.className = seg.cls;
+      } else {
+        cur = document.createTextNode('');
+      }
+      p.appendChild(cur);
+    }
 
     // type 2-5 characters per tick — quick, like streamed text
     var chunk = 2 + Math.floor(Math.random() * 4);
-    ci = Math.min(ci + chunk, full.length);
-    p.textContent = full.slice(0, ci);
+    ci = Math.min(ci + chunk, seg.text.length);
+    if (seg.tag) cur.textContent = seg.text.slice(0, ci);
+    else cur.nodeValue = seg.text.slice(0, ci);
     p.appendChild(caret);
     keepInView();
 
-    if (ci >= full.length) {
-      p.innerHTML = htmls[pi]; // restore real markup (bold headers, emoji span)
-      p.appendChild(caret);
-      pi++; ci = 0;
-      setTimeout(step, 260); // breath between paragraphs
-    } else {
-      setTimeout(step, 16);
-    }
+    if (ci >= seg.text.length) { si++; ci = 0; cur = null; }
+    setTimeout(step, 16);
   }
 
   setTimeout(step, 600);
