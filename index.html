@@ -31,7 +31,7 @@
   ::selection { background: #b3543a; color: #f6ecd6; }
 
   .page {
-    max-width: 44rem;
+    max-width: 52rem;
     margin: 0 auto;
     padding: clamp(2.5rem, 7vw, 5rem) clamp(1.25rem, 5vw, 2.5rem) 6rem;
   }
@@ -40,11 +40,12 @@
   h1 {
     font-family: 'Special Elite', 'Courier New', Courier, monospace;
     font-weight: 400;
-    font-size: clamp(2rem, 7.5vw, 3.6rem);
+    font-size: clamp(1.4rem, 6.6vw, 3.3rem);
     letter-spacing: 0.02em;
     color: #2e2618;
     margin-bottom: clamp(2.25rem, 6vw, 3.5rem);
     line-height: 1.2;
+    white-space: nowrap;
   }
 
   h1 .l {
@@ -214,7 +215,13 @@
   document.addEventListener('click', finish);
   document.addEventListener('keydown', finish);
 
+  // auto-follow the caret only until the reader scrolls on their own
+  var follow = true;
+  window.addEventListener('wheel', function () { follow = false; }, { passive: true });
+  window.addEventListener('touchmove', function () { follow = false; }, { passive: true });
+
   function keepInView() {
+    if (!follow) return;
     var r = caret.getBoundingClientRect();
     if (r.bottom > window.innerHeight - 80) {
       window.scrollTo({ top: window.scrollY + (r.bottom - (window.innerHeight - 80)) });
